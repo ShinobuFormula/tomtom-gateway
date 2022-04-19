@@ -6,7 +6,7 @@ const cookieParser = require("cookie-parser")
 const cors = require("cors")
 const httpProxy = require('express-http-proxy')
 
-const serviceMonsterProxy = httpProxy(process.env.SERVICE_MENU_URI || 'http://localhost:3000');
+const serviceMonsterProxy = httpProxy(process.env.SERVICE_MONSTER_URL || 'http://localhost:3000');
 
 app.use(bodyParser.json())
 app.use(cookieParser());
