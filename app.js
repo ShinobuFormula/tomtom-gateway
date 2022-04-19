@@ -19,6 +19,9 @@ var corsOptions = {
 
 app.use(cors(corsOptions));
 
+//Route de connexion/inscription
+//refresh token
+//Verif token before access route
 
 app.use('/', (req, res, next) => {
     if (req.path.includes('monster')){
