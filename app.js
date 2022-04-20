@@ -36,7 +36,9 @@ app.post('/register', async (req, res) => {
 })
 
 app.post('/connect', async (req, res) => {
-    res.json(await connect(req.body))
+    const connected = await connect(req.body)
+    if(connected) res.cookie("token", connected.token, { path: "/"}).json(connected.userData)
+    else res.status(401).send("Wrong credentials")
 })
 
 app.use('/', (req, res, next) => {
