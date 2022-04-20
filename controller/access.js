@@ -3,14 +3,12 @@ const {createToken} = require('./token')
 const bcrypt = require('bcryptjs');
 
 exports.connect = async (body) => {
-    //envoie que l'email
-    let user = await getUserByEmail(body)
+    let user = await getUserByEmail(body.email)
     if(!user) return false;
-    //double return await and return ???
-   return await bcrypt.compare(body.password, user.password).then((res) => {
-        if(res) return { token : createToken(user._id.toString()), userData : user }
-        return false;
-    })
+    const samePwd = await bcrypt.compare(body.password, user.password)
+    if(samePwd) return { token : createToken(user._id.toString()), userData : user }
+    return false;
+    
 }
 
 exports.register = async (body) => {

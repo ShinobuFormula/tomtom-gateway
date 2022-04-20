@@ -54,9 +54,7 @@ exports.createUser = async (userData) => {
     }
 };
 
-exports.getUserByEmail =  async (userData) => {
-    //Pourquoi je reçois pas direct l'email?
-    const user = await userModel.find({email: userData["email"]});
-    //NON il faut findOne
-    return user[0];
+exports.getUserByEmail =  async (email) => {
+    const user = await userModel.findOne({email: email});
+    return user;
 }
