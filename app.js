@@ -27,11 +27,7 @@ var corsOptions = {
 
 app.use(cors(corsOptions));
 
-//Route de connexion/inscription
-//refresh token
-//Verif token before access route
-
-
+//NEED TO CREATE A STOCK, And an INVENTORY when creating a user
 app.post('/register', async (req, res) => {
     res.json(await register(req.body))
 })
@@ -55,9 +51,6 @@ app.get('/check', (req, res) => {
 })
 
 app.use('/', (req, res, next) => {
-
-
-
     if (req.path.includes('monster')){
         serviceMonsterProxy(req, res, next);
     } else if (req.path.includes('fight')) {
