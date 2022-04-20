@@ -7,29 +7,10 @@ exports.createToken = (uid) => {
 }
 
 exports.verifyToken = (cookie) => {
-    let response;
-    let userData = {};
-    //if(cookie.token) jwt.verify
-    //response = false
-    if(cookie.token)
-    {
-        //es6? (err, decoded) => 
-        jwt.verify(cookie.token, process.env.JWT_KEY, function(err, decoded) {
-            //if(err) response = false
-            //response = true
-            //userData = decoded.uid
-            if(err){
-                response = false
-            }
-            else {
-                response = true
-                userData = decoded.uid
-            }
-        });
-    }
-    else {
-        response = false
-    }
-    //response => success
-    return { response: response, userData };
+    if(cookie.token) return jwt.verify(cookie.token, process.env.JWT_KEY, (err, decoded) => {
+            if(err) return false
+            return {success: true, uid : decoded.uid}
+    });
+    else return false
+
 }

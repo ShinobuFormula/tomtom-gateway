@@ -1,5 +1,5 @@
-const {createUser, getUserByEmail} = require('../model/user')
-const {createToken} = require('./token')
+const {createUser, getUserByEmail, getUserByID} = require('../model/user')
+const {createToken, verifyToken} = require('./token')
 const bcrypt = require('bcryptjs');
 
 exports.connect = async (body) => {
@@ -8,7 +8,16 @@ exports.connect = async (body) => {
     const samePwd = await bcrypt.compare(body.password, user.password)
     if(samePwd) return { token : createToken(user._id.toString()), userData : user }
     return false;
-    
+}
+
+exports.connectWithToken = async (cookie) => {
+    const token = verifyToken(cookie)
+    let userData = {}
+    if(token.response && token.uid){
+        userData = await getUserByID(token.uid)
+        return {newToken: createToken(token.uid), userData}
+    }
+    else return false
 }
 
 exports.register = async (body) => {

@@ -58,3 +58,8 @@ exports.getUserByEmail =  async (email) => {
     const user = await userModel.findOne({email: email});
     return user;
 }
+
+exports.getUserByID =  async (uid) => {
+    const user = await userModel.findOne({_id: uid});
+    return user;
+}
