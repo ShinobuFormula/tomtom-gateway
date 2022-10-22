@@ -16,7 +16,12 @@ const serviceFightProxy = httpProxy(
 	process.env.SERVICE_FIGHT_URL || "http://localhost:3000"
 );
 //controllers
-const { connect, register, connectWithToken } = require("./controller/access");
+const {
+	connect,
+	register,
+	connectWithToken,
+	updatePassword,
+} = require("./controller/access");
 const { verifyToken } = require("./controller/token");
 
 app.use(bodyParser.json());
@@ -44,14 +49,28 @@ app.post("/connect", async (req, res) => {
 				secure: true,
 				expires: new Date(Date.now() + 48 * 3600000),
 			})
-			.json(connected);
+			.json(connected.userData);
 	else res.status(401).send("Wrong credentials");
+});
+
+app.put("/password/:id", async (req, res) => {
+	const updated = await updatePassword(req.params.id, req.body);
+	console.log(updated);
+	res.json(updated);
 });
 
 app.post("/refresh", async (req, res) => {
 	const connected = await connectWithToken(req.cookies);
-	if (connected) res.json(connected);
-	else res.json(connected);
+	if (connected)
+		res
+			.cookie("token", connected.token, {
+				path: "/",
+				sameSite: "none",
+				secure: true,
+				expires: new Date(Date.now() + 48 * 3600000),
+			})
+			.json(connected.userData);
+	else res.status(401).send("Access token not valid");
 });
 
 //will be removed only here for test

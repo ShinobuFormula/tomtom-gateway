@@ -1,31 +1,65 @@
-const { createUser, getUserByEmail, getUserByID } = require("../model/user");
+const {
+	createUser,
+	getUserByEmail,
+	getUserByID,
+	updatePassword,
+} = require("../model/user");
 const { createToken, verifyToken } = require("./token");
 const bcrypt = require("bcryptjs");
 
 exports.connect = async (body) => {
-	let user = await getUserByEmail(body.email);
-	if (!user) return false;
-	const samePwd = await bcrypt.compare(body.password, user.password);
-	if (samePwd)
-		return { token: createToken(user._id.toString()), userData: user };
+	const { success, user } = await _checkPassword(body.email, body.password);
+	console.log(success);
+	if (success)
+		return {
+			token: createToken(user._id.toString()),
+			userData: user,
+		};
 	return false;
 };
 
 exports.connectWithToken = async (cookie) => {
-	console.log(cookie);
 	const token = verifyToken(cookie);
-	console.log(token);
-	let userData = {};
 	if (token.success && token.uid) {
-		userData = await getUserByID(token.uid);
+		const userData = await getUserByID(token.uid);
 		return { newToken: createToken(token.uid), userData };
 	} else return false;
 };
 
 exports.register = async (body) => {
-	console.log(body);
 	const hash = await bcrypt.hash(body.password, 8);
 	body["password"] = hash;
 	const newUser = await createUser(body);
 	return newUser;
+};
+
+exports.updatePassword = async (uid, body) => {
+	const { success, user } = await _checkPassword(body.email, body.password);
+	if (!success && user._id === uid) return false;
+	// const authorizedChange = ["firstname", "lastname", "email", "password"];
+	// let numberOfRightKey = 0;
+	// for (const [key, value] of Object.entries(body)) {
+	// 	for (let index = 0; index < authorizedChange.length; index++) {
+	// 		const element = authorizedChange[index];
+	// 		if (key === element) {
+	// 			numberOfRightKey++;
+	// 			if (element === "password") {
+	// 				const hash = await bcrypt.hash(body.password, 8);
+	// 				body["password"] = hash;
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// if (numberOfRightKey === Object.keys(body).length)
+	// 	return await updateUser(uid, body);
+	// else return false;
+	return await updatePassword(uid, body.newPassword);
+};
+
+const _checkPassword = async (email, password) => {
+	const user = await getUserByEmail(email);
+	if (!user) return { success: false };
+	const samePwd = await bcrypt.compare(password, user.password);
+	if (samePwd) return { success: true, user: user };
+	return { success: false };
 };

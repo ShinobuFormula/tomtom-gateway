@@ -75,3 +75,15 @@ exports.getUserByID = async (uid) => {
 	const user = await userModel.findOne({ _id: uid });
 	return user;
 };
+
+exports.updatePassword = async (uid, password) => {
+	const user = await userModel.findOneAndUpdate(
+		{ _id: uid },
+		{ password },
+		{
+			new: true,
+		}
+	);
+	user.save();
+	return user;
+};
