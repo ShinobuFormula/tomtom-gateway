@@ -3,6 +3,8 @@ const {
 	getUserByEmail,
 	getUserByID,
 	updatePassword,
+	updateEmail,
+	getUserByIdAndEmail,
 } = require("../model/user");
 const { createToken, verifyToken } = require("./token");
 const bcrypt = require("bcryptjs");
@@ -35,8 +37,8 @@ exports.register = async (body) => {
 
 exports.updatePassword = async (uid, body) => {
 	const { success, user } = await _checkPassword(body.email, body.password);
-	if (!success && user._id === uid) return false;
-	// const authorizedChange = ["firstname", "lastname", "email", "password"];
+	if (!success) return false;
+	// const authorizedChange = ["firstname", "lastname", "image"];
 	// let numberOfRightKey = 0;
 	// for (const [key, value] of Object.entries(body)) {
 	// 	for (let index = 0; index < authorizedChange.length; index++) {
@@ -53,11 +55,20 @@ exports.updatePassword = async (uid, body) => {
 	// if (numberOfRightKey === Object.keys(body).length)
 	// 	return await updateUser(uid, body);
 	// else return false;
-	return await updatePassword(uid, body.newPassword);
+	const hash = await bcrypt.hash(body.newPassword, 8);
+	return await updatePassword(uid, hash);
 };
 
-const _checkPassword = async (email, password) => {
-	const user = await getUserByEmail(email);
+exports.updateEmail = async (uid, body) => {
+	const { success } = await _checkPassword(body.email, body.password, uid);
+	if (!success) return false;
+	return await updateEmail(uid, body.newEmail);
+};
+
+const _checkPassword = async (email, password, uid = null) => {
+	let user = false;
+	if (uid) user = await getUserByIdAndEmail(uid, email);
+	else user = await getUserByEmail(email);
 	if (!user) return { success: false };
 	const samePwd = await bcrypt.compare(password, user.password);
 	if (samePwd) return { success: true, user: user };

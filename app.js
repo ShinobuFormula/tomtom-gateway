@@ -21,6 +21,7 @@ const {
 	register,
 	connectWithToken,
 	updatePassword,
+	updateEmail,
 } = require("./controller/access");
 const { verifyToken } = require("./controller/token");
 
@@ -55,6 +56,10 @@ app.post("/connect", async (req, res) => {
 
 app.put("/password/:id", async (req, res) => {
 	const updated = await updatePassword(req.params.id, req.body);
+	res.json(updated);
+});
+app.put("/email/:id", async (req, res) => {
+	const updated = await updateEmail(req.params.id, req.body);
 	console.log(updated);
 	res.json(updated);
 });
