@@ -8,6 +8,7 @@ const {
 } = require("../model/user");
 const { createToken, verifyToken } = require("./token");
 const bcrypt = require("bcryptjs");
+require("dotenv").config();
 
 exports.connect = async (body) => {
 	const { success, user } = await _checkPassword(body.email, body.password);
@@ -29,7 +30,10 @@ exports.connectWithToken = async (cookie) => {
 };
 
 exports.register = async (body) => {
-	const hash = await bcrypt.hash(body.password, 8);
+	const hash = await bcrypt.hash(
+		body.password,
+		parseInt(process.env.HASH_SALT)
+	);
 	body["password"] = hash;
 	const newUser = await createUser(body);
 	return newUser;
@@ -55,7 +59,10 @@ exports.updatePassword = async (uid, body) => {
 	// if (numberOfRightKey === Object.keys(body).length)
 	// 	return await updateUser(uid, body);
 	// else return false;
-	const hash = await bcrypt.hash(body.newPassword, 8);
+	const hash = await bcrypt.hash(
+		body.newPassword,
+		parseInt(tprocess.env.HASH_SALT)
+	);
 	return await updatePassword(uid, hash);
 };
 

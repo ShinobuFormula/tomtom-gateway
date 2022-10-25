@@ -60,7 +60,6 @@ app.put("/password/:id", async (req, res) => {
 });
 app.put("/email/:id", async (req, res) => {
 	const updated = await updateEmail(req.params.id, req.body);
-	console.log(updated);
 	res.json(updated);
 });
 
@@ -68,7 +67,7 @@ app.post("/refresh", async (req, res) => {
 	const connected = await connectWithToken(req.cookies);
 	if (connected)
 		res
-			.cookie("token", connected.token, {
+			.cookie("token", connected.newToken, {
 				path: "/",
 				sameSite: "none",
 				secure: true,
