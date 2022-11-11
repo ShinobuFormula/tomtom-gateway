@@ -61,7 +61,7 @@ exports.updatePassword = async (uid, body) => {
 	// else return false;
 	const hash = await bcrypt.hash(
 		body.newPassword,
-		parseInt(tprocess.env.HASH_SALT)
+		parseInt(process.env.HASH_SALT)
 	);
 	return await updatePassword(uid, hash);
 };
