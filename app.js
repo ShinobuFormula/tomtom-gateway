@@ -23,7 +23,6 @@ const {
 	updatePassword,
 	updateEmail,
 } = require("./controller/access");
-const { verifyToken } = require("./controller/token");
 
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -37,7 +36,10 @@ var corsOptions = {
 app.use(cors(corsOptions));
 
 app.post("/register", async (req, res) => {
-	res.json(await register(req.body));
+	const newUser = await register(req.body)
+	if(newUser) res.json(newUser)
+	else res.status(400).send("Given email is already used")
+	
 });
 
 app.post("/connect", async (req, res) => {
@@ -56,11 +58,14 @@ app.post("/connect", async (req, res) => {
 
 app.put("/password/:id", async (req, res) => {
 	const updated = await updatePassword(req.params.id, req.body);
-	res.json(updated);
+	if(updated) res.json(updated);
+	else res.status(401).send("Wrong credentials")
+	
 });
 app.put("/email/:id", async (req, res) => {
 	const updated = await updateEmail(req.params.id, req.body);
-	res.json(updated);
+	if(updated) res.json(updated);
+	else res.status(401).send("Wrong credentials")
 });
 
 app.post("/refresh", async (req, res) => {
@@ -75,11 +80,6 @@ app.post("/refresh", async (req, res) => {
 			})
 			.json(connected.userData);
 	else res.status(401).send("Access token not valid");
-});
-
-//will be removed only here for test
-app.get("/check", (req, res) => {
-	res.json(verifyToken(req.cookies));
 });
 
 app.use("/", (req, res, next) => {

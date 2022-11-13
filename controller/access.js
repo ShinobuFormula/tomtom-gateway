@@ -40,7 +40,7 @@ exports.register = async (body) => {
 };
 
 exports.updatePassword = async (uid, body) => {
-	const { success, user } = await _checkPassword(body.email, body.password);
+	const { success } = await _checkPassword(body.email, body.password);
 	if (!success) return false;
 	// const authorizedChange = ["firstname", "lastname", "image"];
 	// let numberOfRightKey = 0;
