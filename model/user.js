@@ -55,7 +55,6 @@ const userSchema = new mongoose.Schema({
 const userModel = mongoose.model("user", userSchema);
 
 exports.createUser = async (userData) => {
-	console.log(userData);
 	const duplicate = await userModel.find({ email: userData["email"] });
 
 	if (duplicate.length === 0) {
