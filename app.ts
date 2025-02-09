@@ -39,9 +39,9 @@ app.use(cors(corsOptions));
 
 app.post("/register", async (req, res) => {
 	const newUser = await register(req.body)
-	if(newUser) res.json(newUser)
+	if (newUser) res.json(newUser)
 	else res.status(400).send("Given email is already used")
-	
+
 });
 
 app.post("/connect", async (req, res) => {
@@ -60,13 +60,13 @@ app.post("/connect", async (req, res) => {
 
 app.put("/password/:id", async (req, res) => {
 	const updated = await updtPassword(req.params.id, req.body);
-	if(updated) res.json(updated);
+	if (updated) res.json(updated);
 	else res.status(401).send("Wrong credentials")
-	
+
 });
 app.put("/email/:id", async (req, res) => {
 	const updated = await updtEmail(req.params.id, req.body);
-	if(updated) res.json(updated);
+	if (updated) res.json(updated);
 	else res.status(401).send("Wrong credentials")
 });
 
@@ -85,7 +85,11 @@ app.post("/refresh", async (req, res) => {
 });
 
 app.use("/", (req, res, next) => {
-	if (req.path.includes("monster")) {
+	if (
+		req.path.includes("monster") ||
+		req.path.includes("passive") ||
+		req.path.includes("skill")
+	) {
 		serviceMonsterProxy(req, res, next);
 	} else if (req.path.includes("fight")) {
 		serviceFightProxy(req, res, next);
