@@ -1,3 +1,4 @@
+import { createStock } from "../model/stock.js";
 import {
 	createUser,
 	getUserByEmail,
@@ -35,6 +36,9 @@ const register = async (body) => {
 		parseInt(process.env.HASH_SALT)
 	);
 	body["password"] = hash;
+
+	const newStock = await _prepareStock()
+	body["stock"] = newStock._id;
 	const newUser = await createUser(body);
 	return newUser;
 };
@@ -81,5 +85,10 @@ const _checkPassword = async (email, password, uid = null) => {
 	if (samePwd) return { success: true, user: user };
 	return { success: false };
 };
+
+const _prepareStock = async () => {
+	const stock = { pc: [] }
+	return await createStock(stock);
+}
 
 export { connect, connectWithToken, updtEmail, updtPassword, register }

@@ -41,9 +41,10 @@ app.post("/register", async (req, res) => {
 	try {
 		const newUser = await register(req.body)
 		if (newUser) res.json(newUser);
-		else throw new Error();
+		else res.status(404).send("Already used email");
 	} catch (error) {
-		res.status(404).send("Already used email");
+		console.log(error);
+		res.status(403).send("Bad Request");
 	}
 });
 
