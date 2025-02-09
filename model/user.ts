@@ -1,6 +1,10 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
+	pseudo: {
+		type: String,
+		required: true,
+	},
 	firstname: {
 		type: String,
 		required: false,
@@ -8,10 +12,6 @@ const userSchema = new mongoose.Schema({
 	lastname: {
 		type: String,
 		required: false,
-	},
-	pseudo: {
-		type: String,
-		required: true,
 	},
 	password: {
 		type: String,
@@ -23,38 +23,22 @@ const userSchema = new mongoose.Schema({
 	},
 	birthdate: {
 		type: Date,
-		required: true,
-	},
-	captureLvl: {
-		type: Number,
 		required: false,
-		default: 1,
-	},
-	adventureLvl: {
-		type: Number,
-		required: false,
-		default: 1,
-	},
-	inventory: {
-		type: Object,
-		required: false,
-		default: {},
 	},
 	stock: {
+		type: String,
+		required: false,
+	},
+	team: [{
 		type: Object,
 		required: false,
 		default: {},
-	},
-	team: {
-		type: Object,
-		required: false,
-		default: {},
-	},
+	}],
 });
 
 const userModel = mongoose.model("user", userSchema);
 
-exports.createUser = async (userData) => {
+const createUser = async (userData) => {
 	const duplicate = await userModel.find({ email: userData["email"] });
 
 	if (duplicate.length === 0) {
@@ -65,22 +49,22 @@ exports.createUser = async (userData) => {
 	}
 };
 
-exports.getUserByEmail = async (email) => {
+const getUserByEmail = async (email) => {
 	const user = await userModel.findOne({ email: email });
 	return user;
 };
 
-exports.getUserByID = async (uid) => {
+const getUserByID = async (uid) => {
 	const user = await userModel.findOne({ _id: uid });
 	return user;
 };
 
-exports.getUserByIdAndEmail = async (uid, email) => {
+const getUserByIdAndEmail = async (uid, email) => {
 	const user = await userModel.findOne({ _id: uid, email: email });
 	return user;
 };
 
-exports.updatePassword = async (uid, password) => {
+const updatePassword = async (uid, password) => {
 	const user = await userModel.findOneAndUpdate(
 		{ _id: uid },
 		{ password },
@@ -91,7 +75,8 @@ exports.updatePassword = async (uid, password) => {
 	user.save();
 	return user;
 };
-exports.updateEmail = async (uid, email) => {
+
+const updateEmail = async (uid, email) => {
 	const user = await userModel.findOneAndUpdate(
 		{ _id: uid },
 		{ email },
@@ -102,3 +87,7 @@ exports.updateEmail = async (uid, email) => {
 	user.save();
 	return user;
 };
+
+export {
+	createUser, getUserByEmail, updateEmail, updatePassword, getUserByID, getUserByIdAndEmail
+}

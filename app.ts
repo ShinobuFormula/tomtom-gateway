@@ -1,28 +1,28 @@
-const express = require("express");
+import express from "express";
 const app = express();
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 //mongodb
-const db = require("./db");
+import connectToDb from "./db.js";
 //middleware
-const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
-const cors = require("cors");
-const httpProxy = require("express-http-proxy");
-//micro-services
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import httpProxy from "express-http-proxy";
+import cors from "cors"
+import {
+	connect,
+	register,
+	connectWithToken,
+	updtPassword,
+	updtEmail,
+} from "./controller/access.js";
+
 const serviceMonsterProxy = httpProxy(
 	process.env.SERVICE_MONSTER_URL || "http://localhost:3000"
 );
 const serviceFightProxy = httpProxy(
 	process.env.SERVICE_FIGHT_URL || "http://localhost:3000"
 );
-//controllers
-const {
-	connect,
-	register,
-	connectWithToken,
-	updatePassword,
-	updateEmail,
-} = require("./controller/access");
 
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -33,13 +33,15 @@ var corsOptions = {
 	optionsSuccessStatus: 200,
 };
 
+connectToDb();
+
 app.use(cors(corsOptions));
 
 app.post("/register", async (req, res) => {
 	const newUser = await register(req.body)
-	if(newUser) res.json(newUser)
+	if (newUser) res.json(newUser)
 	else res.status(400).send("Given email is already used")
-	
+
 });
 
 app.post("/connect", async (req, res) => {
@@ -57,14 +59,14 @@ app.post("/connect", async (req, res) => {
 });
 
 app.put("/password/:id", async (req, res) => {
-	const updated = await updatePassword(req.params.id, req.body);
-	if(updated) res.json(updated);
+	const updated = await updtPassword(req.params.id, req.body);
+	if (updated) res.json(updated);
 	else res.status(401).send("Wrong credentials")
-	
+
 });
 app.put("/email/:id", async (req, res) => {
-	const updated = await updateEmail(req.params.id, req.body);
-	if(updated) res.json(updated);
+	const updated = await updtEmail(req.params.id, req.body);
+	if (updated) res.json(updated);
 	else res.status(401).send("Wrong credentials")
 });
 
@@ -83,7 +85,11 @@ app.post("/refresh", async (req, res) => {
 });
 
 app.use("/", (req, res, next) => {
-	if (req.path.includes("monster")) {
+	if (
+		req.path.includes("monster") ||
+		req.path.includes("passive") ||
+		req.path.includes("skill")
+	) {
 		serviceMonsterProxy(req, res, next);
 	} else if (req.path.includes("fight")) {
 		serviceFightProxy(req, res, next);

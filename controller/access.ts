@@ -1,16 +1,17 @@
-const {
+import {
 	createUser,
 	getUserByEmail,
 	getUserByID,
 	updatePassword,
 	updateEmail,
 	getUserByIdAndEmail,
-} = require("../model/user");
-const { createToken, verifyToken } = require("./token");
-const bcrypt = require("bcryptjs");
-require("dotenv").config();
+} from "../model/user.js";
+import { createToken, verifyToken } from "./token.js";
+import bcrypt from "bcryptjs";
+import dotenv from "dotenv";
+dotenv.config();
 
-exports.connect = async (body) => {
+const connect = async (body) => {
 	const { success, user } = await _checkPassword(body.email, body.password);
 	console.log(success);
 	if (success)
@@ -21,7 +22,7 @@ exports.connect = async (body) => {
 	return false;
 };
 
-exports.connectWithToken = async (cookie) => {
+const connectWithToken = async (cookie) => {
 	const token = verifyToken(cookie);
 	if (token.success && token.uid) {
 		const userData = await getUserByID(token.uid);
@@ -29,7 +30,7 @@ exports.connectWithToken = async (cookie) => {
 	} else return false;
 };
 
-exports.register = async (body) => {
+const register = async (body) => {
 	const hash = await bcrypt.hash(
 		body.password,
 		parseInt(process.env.HASH_SALT)
@@ -39,7 +40,7 @@ exports.register = async (body) => {
 	return newUser;
 };
 
-exports.updatePassword = async (uid, body) => {
+const updtPassword = async (uid, body) => {
 	const { success } = await _checkPassword(body.email, body.password);
 	if (!success) return false;
 	// const authorizedChange = ["firstname", "lastname", "image"];
@@ -66,18 +67,20 @@ exports.updatePassword = async (uid, body) => {
 	return await updatePassword(uid, hash);
 };
 
-exports.updateEmail = async (uid, body) => {
+const updtEmail = async (uid, body) => {
 	const { success } = await _checkPassword(body.email, body.password, uid);
 	if (!success) return false;
 	return await updateEmail(uid, body.newEmail);
 };
 
 const _checkPassword = async (email, password, uid = null) => {
-	let user = false;
+	let user = null;
 	if (uid) user = await getUserByIdAndEmail(uid, email);
 	else user = await getUserByEmail(email);
-	if (!user) return { success: false };
+	if (user == null) return { success: false };
 	const samePwd = await bcrypt.compare(password, user.password);
 	if (samePwd) return { success: true, user: user };
 	return { success: false };
 };
+
+export { connect, connectWithToken, updtEmail, updtPassword, register}

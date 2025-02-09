@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"lib": ["es6"],
+		"target": "es6",
+		"declaration": false,
+		"noImplicitAny": false,
+		"removeComments": true,
+		"noLib": false,
+		"moduleResolution": "node",
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true
+	},
+	"include": ["**/*"],
+	"exclude": ["node_modules", "**/*.spec.ts"],
+}

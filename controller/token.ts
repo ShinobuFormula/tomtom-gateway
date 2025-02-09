@@ -1,11 +1,12 @@
-const jwt = require("jsonwebtoken");
-require("dotenv").config();
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
-exports.createToken = (uid) => {
+const createToken = (uid) => {
 	return jwt.sign({ uid: uid }, process.env.JWT_KEY, { expiresIn: "24h" });
 };
 
-exports.verifyToken = (cookie) => {
+const verifyToken = (cookie) => {
 	if (cookie.token)
 		return jwt.verify(cookie.token, process.env.JWT_KEY, (err, decoded) => {
 			if (err) return false;
@@ -13,3 +14,5 @@ exports.verifyToken = (cookie) => {
 		});
 	else return false;
 };
+
+export { createToken, verifyToken }
