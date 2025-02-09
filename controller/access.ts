@@ -13,7 +13,6 @@ dotenv.config();
 
 const connect = async (body) => {
 	const { success, user } = await _checkPassword(body.email, body.password);
-	console.log(success);
 	if (success)
 		return {
 			token: createToken(user._id.toString()),
@@ -83,4 +82,4 @@ const _checkPassword = async (email, password, uid = null) => {
 	return { success: false };
 };
 
-export { connect, connectWithToken, updtEmail, updtPassword, register}
+export { connect, connectWithToken, updtEmail, updtPassword, register }
