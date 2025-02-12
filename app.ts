@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 const app = express();
 import dotenv from "dotenv";
 dotenv.config();
@@ -103,11 +103,12 @@ app.post("/refresh", async (req, res) => {
 	}
 });
 
-app.use("/", (req, res, next) => {
+app.use("/", (req: Request, res: Response, next) => {
 	if (
 		req.path.includes("monster") ||
 		req.path.includes("passive") ||
-		req.path.includes("skill")
+		req.path.includes("skill") ||
+		req.path.includes("stock")
 	) {
 		serviceMonsterProxy(req, res, next);
 	} else if (req.path.includes("fight")) {
