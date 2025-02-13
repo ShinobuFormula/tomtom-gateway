@@ -29,11 +29,11 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		required: false,
 	},
-	team: [{
+	team: {
 		type: Object,
 		required: false,
 		default: {},
-	}],
+	},
 });
 
 const userModel = mongoose.model("user", userSchema);

@@ -1,4 +1,5 @@
 import { createStock } from "../model/stock.js";
+import { User } from "../model/interfaces/user.js";
 import {
 	createUser,
 	getUserByEmail,
@@ -14,10 +15,11 @@ dotenv.config();
 
 const connect = async (body) => {
 	const { success, user } = await _checkPassword(body.email, body.password);
+	const filledUser = await _fillUserTeam(user._id);
 	if (success)
 		return {
 			token: createToken(user._id.toString()),
-			userData: user,
+			userData: filledUser ? filledUser : user,
 		};
 	return false;
 };
@@ -76,8 +78,8 @@ const updtEmail = async (uid, body) => {
 	return await updateEmail(uid, body.newEmail);
 };
 
-const _checkPassword = async (email, password, uid = null) => {
-	let user = null;
+const _checkPassword = async (email: string, password: string, uid = null) => {
+	let user: User = null;
 	if (uid) user = await getUserByIdAndEmail(uid, email);
 	else user = await getUserByEmail(email);
 	if (user == null) return { success: false };
@@ -85,6 +87,16 @@ const _checkPassword = async (email, password, uid = null) => {
 	if (samePwd) return { success: true, user: user };
 	return { success: false };
 };
+
+
+const _fillUserTeam = async(userId: string) => {
+	try {
+		const fetchedUser = await fetch(process.env.SERVICE_MONSTER_URL + "stock/team/" + userId)
+		if(fetchedUser.ok) return fetchedUser.json()
+	} catch (error) {
+		console.log(error);
+	}
+}
 
 const _prepareStock = async () => {
 	const stock = { pc: [] }
