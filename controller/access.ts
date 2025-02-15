@@ -1,5 +1,5 @@
 import { createStock } from "../model/stock.js";
-import { User } from "../model/interfaces/user.js";
+import { Stock, User } from "../model/interfaces/user.js";
 import {
 	createUser,
 	getUserByEmail,
@@ -13,9 +13,9 @@ import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 dotenv.config();
 
-const connect = async (body) => {
+const connect = async (body: { email: string, password: string }) => {
 	const { success, user } = await _checkPassword(body.email, body.password);
-	const filledUser = await _fillUserTeam(user._id);
+	const filledUser: User = await _fillUserTeam(user._id);
 	if (success)
 		return {
 			token: createToken(user._id.toString()),
@@ -25,27 +25,26 @@ const connect = async (body) => {
 };
 
 const connectWithToken = async (cookie) => {
-	const token = verifyToken(cookie);
-	if (token.success && token.uid) {
-		const userData = await getUserByID(token.uid);
-		return { newToken: createToken(token.uid), userData };
-	} else return false;
+	const { success, uid } = verifyToken(cookie);
+	if (success && uid !== null) {
+		const userData: User = await getUserByID(uid);
+		return { newToken: createToken(uid), user: userData };
+	} else return { newToken: null, user: null };
 };
 
-const register = async (body) => {
+const register = async (body: User) => {
 	const hash = await bcrypt.hash(
 		body.password,
 		parseInt(process.env.HASH_SALT)
 	);
-	body["password"] = hash;
-
+	body.password = hash;
 	const newStock = await _prepareStock()
-	body["stock"] = newStock._id;
+	body.stock = newStock._id;
 	const newUser = await createUser(body);
 	return newUser;
 };
 
-const updtPassword = async (uid, body) => {
+const updtPassword = async (uid: string, body: { email: string, password: string, newPassword: string }) => {
 	const { success } = await _checkPassword(body.email, body.password);
 	if (!success) return false;
 	// const authorizedChange = ["firstname", "lastname", "image"];
@@ -72,7 +71,7 @@ const updtPassword = async (uid, body) => {
 	return await updatePassword(uid, hash);
 };
 
-const updtEmail = async (uid, body) => {
+const updtEmail = async (uid: string, body: { email: string, password: string, newEmail: string }) => {
 	const { success } = await _checkPassword(body.email, body.password, uid);
 	if (!success) return false;
 	return await updateEmail(uid, body.newEmail);
@@ -89,17 +88,17 @@ const _checkPassword = async (email: string, password: string, uid = null) => {
 };
 
 
-const _fillUserTeam = async(userId: string) => {
+const _fillUserTeam = async (userId: string) => {
 	try {
 		const fetchedUser = await fetch(process.env.SERVICE_MONSTER_URL + "stock/team/" + userId)
-		if(fetchedUser.ok) return fetchedUser.json()
+		if (fetchedUser.ok) return fetchedUser.json()
 	} catch (error) {
 		console.log(error);
 	}
 }
 
 const _prepareStock = async () => {
-	const stock = { pc: [] }
+	const stock: Stock = { pc: [] }
 	return await createStock(stock);
 }
 

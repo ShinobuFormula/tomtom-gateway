@@ -37,7 +37,7 @@ connectToDb();
 
 app.use(cors(corsOptions));
 
-app.post("/register", async (req, res) => {
+app.post("/register", async (req: Request, res: Response) => {
 	try {
 		const newUser = await register(req.body)
 		if (newUser) res.json(newUser);
@@ -48,7 +48,7 @@ app.post("/register", async (req, res) => {
 	}
 });
 
-app.post("/connect", async (req, res) => {
+app.post("/connect", async (req: Request, res: Response) => {
 	try {
 		const connected = await connect(req.body);
 		if (connected)
@@ -66,7 +66,7 @@ app.post("/connect", async (req, res) => {
 	}
 });
 
-app.put("/password/:id", async (req, res) => {
+app.put("/password/:id", async (req: Request, res: Response) => {
 	try {
 		const updated = await updtPassword(req.params.id, req.body);
 		if (updated) res.json(updated);
@@ -75,7 +75,7 @@ app.put("/password/:id", async (req, res) => {
 		res.status(403).send("Bad Request");
 	}
 });
-app.put("/email/:id", async (req, res) => {
+app.put("/email/:id", async (req: Request, res: Response) => {
 	try {
 		const updated = await updtEmail(req.params.id, req.body);
 		if (updated) res.json(updated);
@@ -85,18 +85,18 @@ app.put("/email/:id", async (req, res) => {
 	}
 });
 
-app.post("/refresh", async (req, res) => {
+app.post("/refresh", async (req: Request, res: Response) => {
 	try {
-		const connected = await connectWithToken(req.cookies);
-		if (connected)
+		const { newToken, user } = await connectWithToken(req.cookies);
+		if (user !== null)
 			res
-				.cookie("token", connected.newToken, {
+				.cookie("token", newToken, {
 					path: "/",
 					sameSite: "none",
 					secure: true,
 					expires: new Date(Date.now() + 48 * 3600000),
 				})
-				.json(connected.userData);
+				.json(user);
 		else res.status(401).send("Access token not valid");
 	} catch (error) {
 		res.status(403).send("Bad Request");

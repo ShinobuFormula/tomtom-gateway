@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
 	},
 	birthdate: {
 		type: Date,
-		required: false,
+		required: true,
 	},
 	stock: {
 		type: String,
